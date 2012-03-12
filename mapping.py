@@ -24,6 +24,24 @@ def V(design, name, reduce=None):
                                         reduce=reduce)
 
 
+class EnhancedTextField(Field):
+    """
+    Uses UTF8 instwead of unicode bytes for all data stored in Couch
+    """
+
+    def _to_python(self, value):
+        if isinstance(value, str):
+            return unicode(value, 'utf-8')
+        else:
+            return unicode(value)
+
+    def _to_json(self, value):
+        if isinstance(value, str):
+            return unicode(value, 'utf-8').encode('utf-8')
+        else:
+            return unicode(value).encode('utf-8')
+
+
 class EnhancedDateTimeField(Field):
     """
     Improves on the standard DateTimeField which doesnt correctly
