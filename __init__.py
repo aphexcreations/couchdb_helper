@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+
 """
 CouchDB
 """
 
+import time
 import os
 
 from django.conf import settings
@@ -10,6 +13,8 @@ from couchdb import Server
 from couchdb.design import ViewDefinition
 from couchdb.http import ResourceNotFound
 from couchdb.mapping import ViewField
+
+import iter_goodies
 
 
 try:
@@ -40,7 +45,6 @@ def create_db(name):
     @author BrendonCrawford
     @param name String
     """
-    global SERVER
     try:
         if SERVER[name]:
             pass
@@ -61,7 +65,6 @@ def results(db_name, design_doc_name, view_name, **options):
     @param view_name String
     @options Dict
     """
-    global SERVER
     res = \
         SERVER[db_name]\
             .view('/'.join((design_doc_name, view_name)), None, **options)
@@ -104,7 +107,6 @@ def upload_views(db_name, map_funcs):
 
     @author BrendonCrawford
     """
-    global SERVER
     ViewDefinition.sync_many(SERVER[db_name], map_funcs, True)
     print "Uploaded views: <%s>" % db_name
     return True
@@ -118,7 +120,6 @@ def all_docs(db_name):
     @param db_name String
     @return List
     """
-    global SERVER
     docs = SERVER[db_name].view('_all_docs', include_docs=True)
     return docs
 
@@ -131,7 +132,6 @@ def empty_db(db_name):
     @param db_name
     @return Bool
     """
-    global SERVER
     docs = []
     for x in all_docs(db_name).rows:
         if x.id[0] != '_':
@@ -151,7 +151,6 @@ def delete_dbs():
 
     @author BrendonCrawford
     """
-    global SERVER
     dbs = all_dbs()
     for db in dbs:
         if db[0] != '_':
@@ -167,7 +166,6 @@ def all_dbs():
     @author BrendonCrawford
     @return Dict
     """
-    global SERVER
     path = '_all_dbs'
     status, headers, data = _server_get(path)
     return data
@@ -180,6 +178,21 @@ def _server_get(path):
     @author BrendonCrawford
     @param path String
     """
-    global SERVER
     status, headers, data = SERVER.resource.get_json(path=path)
     return (status, headers, data)
+
+
+def update_bulk(dbname, docs, size=200, async=False, delay=0, opts=None):
+    """
+    Do a server bulk write in chunks
+    """
+    if len(docs) > 0:
+        if opts is None:
+            opts = {}
+        if async:
+            opts['batch'] = 'ok'
+        for chunk in iter_goodies.chunks(docs, size):
+            SERVER[dbname].update(chunk, **opts)
+            if delay > 0:
+                time.sleep(delay)
+    return True
