@@ -14,7 +14,7 @@ from couchdb.design import ViewDefinition
 from couchdb.http import ResourceNotFound
 from couchdb.mapping import ViewField
 
-import iter_goodies
+import list_splitter
 
 
 try:
@@ -191,7 +191,7 @@ def update_bulk(dbname, docs, size=200, async=False, delay=0, opts=None):
             opts = {}
         if async:
             opts['batch'] = 'ok'
-        for chunk in iter_goodies.chunks(docs, size):
+        for chunk in list_splitter.chunks_of_n(docs, size):
             SERVER[dbname].update(chunk, **opts)
             if delay > 0:
                 time.sleep(delay)
