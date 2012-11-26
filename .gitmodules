@@ -1,3 +1,3 @@
 [submodule "list_splitter"]
 	path = list_splitter
-	url = git@github.com:last/list_splitter.git
+	url = git@github.com:stockr-labs/list_splitter.git
