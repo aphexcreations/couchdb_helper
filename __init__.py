@@ -7,7 +7,8 @@ CouchDB
 import time
 import os
 
-from django.conf import settings
+## Needs to be in import path
+import settings
 
 from couchdb import Server
 from couchdb.design import ViewDefinition
