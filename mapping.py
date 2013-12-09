@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Enhanced ViewField
 """
@@ -7,9 +9,12 @@ import dateutil.parser
 from couchdb.mapping import DEFAULT
 from couchdb.mapping import Field, ViewField
 
+# pylint: disable=W0403
 from design import EnhancedViewDefinition
+# pylint: enable=W0403
 
 
+# pylint: disable=W0622,C0103
 def V(design, name, reduce=None):
     """
     Shortcut for ViewField and EnhancedViewField
@@ -22,6 +27,7 @@ def V(design, name, reduce=None):
         return EnhancedViewField.define(design=design,
                                         name=name,
                                         reduce=reduce)
+# pylint: enable=W0622,C0103
 
 
 class EnhancedTextField(Field):
@@ -66,6 +72,7 @@ class EnhancedViewField(ViewField):
     for reduce functions in decorators
     """
 
+    # pylint: disable=W0622
     @classmethod
     def define(cls, design, name=None,
                language='python',
@@ -86,10 +93,14 @@ class EnhancedViewField(ViewField):
         @param defaults Dict
         """
         def view_wrapped(fun):
+            """
+            Decorator callback
+            """
             return cls(design, fun, reduce_fun=reduce,
                        language=language, wrapper=wrapper,
                        **defaults)
         return view_wrapped
+    # pylint: enable=W0622
 
     def __get__(self, instance, cls=None):
         """

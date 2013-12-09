@@ -15,7 +15,9 @@ from couchdb.design import ViewDefinition
 from couchdb.http import ResourceNotFound
 from couchdb.mapping import ViewField
 
+# pylint: disable=W0403
 import list_splitter
+# pylint: enable=W0403
 
 
 try:
@@ -68,7 +70,7 @@ def results(db_name, design_doc_name, view_name, **options):
     """
     res = \
         SERVER[db_name]\
-            .view('/'.join((design_doc_name, view_name)), None, **options)
+        .view('/'.join((design_doc_name, view_name)), None, **options)
     return res
 
 
@@ -86,7 +88,7 @@ def list_results(db_name, design_doc_name, view_name, **options):
     return out
 
 
-def clean_results(results):
+def clean_results(res):
     """
     Cleans up results from python-couchdb query
 
@@ -95,11 +97,7 @@ def clean_results(results):
     @param db_name String
     @param options Dict
     """
-    rows = results.rows
-    updates = []
-    for row in rows:
-        updates.append(row.value)
-    return updates
+    return map((lambda row: row.value), res.rows)
 
 
 def upload_views(db_name, map_funcs):
@@ -168,7 +166,7 @@ def all_dbs():
     @return Dict
     """
     path = '_all_dbs'
-    status, headers, data = _server_get(path)
+    _, _, data = _server_get(path)
     return data
 
 
